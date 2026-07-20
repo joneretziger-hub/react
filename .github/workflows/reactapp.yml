@@ -16,6 +16,8 @@ jobs:
       - name: Go To the Path
         run: |
           cd /home/jone/Downloads/Docker/react-app
+          git fetch
+          git pull
 
       - name: Build Docker Image
         run: |
