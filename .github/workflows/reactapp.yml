@@ -1,4 +1,4 @@
-name: React Docker CI/CD
+name: React Docker CI/CD with Trivy
 
 on:
   push:
@@ -10,27 +10,39 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Go To the Path
+      - name: Update Local Repository
         run: |
           cd /home/jone/Downloads/Docker/react-app
-          git fetch
-          git pull
+          git fetch origin
+          git checkout joneretziger-hub-patch-1
+          git pull origin joneretziger-hub-patch-1
 
       - name: Build Docker Image
         run: |
-          docker build -t react-app .
+          cd /home/jone/Downloads/Docker/react-app
+          docker build -t react-app:latest .
 
-      - name: Stop Old Container
+      - name: Scan Docker Image Using Trivy
+        run: |
+          trivy image \
+            --severity HIGH,CRITICAL \
+            --exit-code 1 \
+            react-app:latest
+
+      - name: Stop Existing Container
         run: |
           docker stop react-container || true
+
+      - name: Remove Existing Container
+        run: |
           docker rm react-container || true
 
-      - name: Run Container
+      - name: Run Docker Container
         run: |
           docker run -d \
             --name react-container \
-            -p 2000:3000 \
-            react-app
+            -p 2000:80 \
+            react-app:latest
