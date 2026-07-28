@@ -1,6 +1,7 @@
 
 FROM node:20-alpine
-
+# Update Alpine packages
+RUN apk update && apk upgrade --no-cache
 
 WORKDIR /app
 
